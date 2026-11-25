@@ -3,7 +3,6 @@
  * Tout le contenu du site se modifie dans src/data/ — pas besoin de toucher aux composants.
  */
 import etangs from '../assets/images/apropos-etangs.jpg';
-import montagne from '../assets/images/apropos-montagne.jpg';
 
 export const site = {
   name: 'Mathis',
@@ -25,6 +24,5 @@ export const about = {
     "Mon côté créatif m'a amené au développement, que j'ai trouvé accessible : on peut y construire à peu près tout. Aujourd'hui, je suis ingénieur logiciel et je crée des applications pour la logistique.",
   photos: [
     { src: etangs, alt: 'Coucher de soleil sur les étangs, près de Mauguio' },
-    { src: montagne, alt: 'Crêtes calcaires en haute montagne' },
   ],
 };
