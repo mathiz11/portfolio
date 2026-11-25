@@ -1,0 +1,24 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Sidebar from '../components/Sidebar.astro';
+import About from '../components/sections/About.astro';
+import Projects from '../components/sections/Projects.astro';
+import Career from '../components/sections/Career.astro';
+import Sport from '../components/sections/Sport.astro';
+import Hobbies from '../components/sections/Hobbies.astro';
+import Travels from '../components/sections/Travels.astro';
+---
+
+<Layout>
+  <div class="flex min-h-dvh flex-col min-[681px]:flex-row min-[681px]:items-start">
+    <Sidebar />
+    <main class="min-w-0 flex-1">
+      <About />
+      <Projects />
+      <Career />
+      <Sport />
+      <Hobbies />
+      <Travels />
+    </main>
+  </div>
+</Layout>

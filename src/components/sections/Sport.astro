@@ -1,0 +1,90 @@
+---
+import Icon from '../Icon.astro';
+import Photo from '../Photo.astro';
+import { sportIntro, races, sportPhotos, otherSports, pastSports } from '../../data/sport';
+---
+
+<section id="sport" class="section" aria-labelledby="t-sport">
+  <div class="container-page flex flex-col gap-10">
+    <div class="flex flex-col gap-5.5">
+      <h2 id="t-sport" class="section-title">Sport</h2>
+      <p class="m-0 max-w-[28em] text-[clamp(20px,2.2vw,24px)] leading-snug font-medium">{sportIntro}</p>
+    </div>
+
+    <div class="reveal flex flex-col gap-4 border border-fg p-6">
+      <div class="flex flex-wrap items-baseline justify-between gap-3">
+        <h3 class="m-0 text-2xl font-bold tracking-[-0.02em]">Trail</h3>
+        <span class="text-[13px] text-muted">Activité principale · {races.length} dernières courses via Strava</span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full border-collapse text-[15px] whitespace-nowrap">
+          <thead>
+            <tr class="text-left text-[13px] text-muted [&>th]:border-b-2 [&>th]:border-accent [&>th]:pr-4 [&>th]:pb-2.5 [&>th]:font-bold">
+              <th scope="col">Date</th>
+              <th scope="col">Course</th>
+              <th scope="col">Distance</th>
+              <th scope="col">D+</th>
+              <th scope="col">Temps</th>
+              <th scope="col">Classement</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              races.map((r) => (
+                <tr class="[&>td]:border-b [&>td]:border-line [&>td]:py-3.25 [&>td]:pr-4">
+                  <td>{r.date}</td>
+                  <td>
+                    <a
+                      href={r.url}
+                      target="_blank"
+                      rel="noopener"
+                      class="underline decoration-1 underline-offset-3 hover:text-fg hover:decoration-accent hover:decoration-2"
+                    >
+                      {r.name}
+                    </a>
+                  </td>
+                  <td>{r.distance}</td>
+                  <td>{r.elevation}</td>
+                  <td>{r.time}</td>
+                  <td>{r.rank}</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="reveal photo-scroller sm:grid-cols-3">
+      {sportPhotos.map((p) => <Photo src={p.src} alt={p.alt} ratio="4 / 5" sizes="(min-width: 1024px) 370px, (min-width: 640px) 33vw, 80vw" />)}
+    </div>
+
+    <div class="grid gap-8 md:grid-cols-2">
+      <div class="flex flex-col">
+        <h3 class="eyebrow border-b border-fg pb-2">Aussi</h3>
+        {
+          otherSports.map((s) => (
+            <div class="flex items-center gap-3 border-b border-line py-3">
+              <Icon name={s.icon} />
+              <span>{s.label}</span>
+            </div>
+          ))
+        }
+      </div>
+      <div class="flex flex-col">
+        <h3 class="eyebrow border-b border-fg pb-2">Avant</h3>
+        {
+          pastSports.map((s) => (
+            <div class="flex items-start gap-3 border-b border-line py-3">
+              <Icon name={s.icon} class="mt-0.75" />
+              <span class="flex flex-col">
+                <span>{s.label}</span>
+                <span class="text-[13px] text-muted">{s.detail}</span>
+              </span>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,126 @@
+---
+import Icon from './Icon.astro';
+import type { IconName } from './icons';
+import { site } from '../data/site';
+
+const sections: { id: string; label: string; icon: IconName }[] = [
+  { id: 'a-propos', label: 'À propos', icon: 'user' },
+  { id: 'projets', label: 'Projets', icon: 'code' },
+  { id: 'parcours', label: 'Parcours', icon: 'graduation' },
+  { id: 'sport', label: 'Sport', icon: 'runner' },
+  { id: 'hobbies', label: 'Hobbies', icon: 'heart' },
+  { id: 'voyages', label: 'Voyages', icon: 'map' },
+];
+---
+
+<!-- Mobile : barre fixe en haut, cachée quand on descend, visible quand on remonte.
+     Desktop (≥ 681 px) : colonne latérale. -->
+<aside
+  id="site-nav"
+  class="sticky top-0 z-50 flex h-14 w-full flex-row items-center gap-0 border-b border-line bg-bg/85 px-3 backdrop-blur-md transition-transform duration-300 data-[hidden]:-translate-y-full min-[681px]:bg-bg min-[681px]:backdrop-blur-none min-[681px]:data-[hidden]:translate-y-0 min-[681px]:top-0 min-[681px]:h-dvh min-[681px]:w-19 min-[681px]:shrink-0 min-[681px]:flex-col min-[681px]:gap-7 min-[681px]:border-r min-[681px]:border-b-0 min-[681px]:px-0 min-[681px]:py-7"
+>
+  <a
+    href="#a-propos"
+    aria-label="Mathis, retour en haut"
+    class="mr-auto flex flex-col items-center pr-2 text-xl leading-none font-bold no-underline hover:text-fg min-[681px]:mr-0 min-[681px]:pr-0 min-[681px]:text-[22px]"
+  >
+    <span>M</span>
+    <span class="mt-1 block h-0.75 w-4 bg-accent min-[681px]:mt-1.5 min-[681px]:w-4.5"></span>
+  </a>
+
+  <nav aria-label="Sections" class="flex flex-row min-[681px]:flex-col min-[681px]:gap-1">
+    {
+      sections.map((s, i) => (
+        <a
+          href={`#${s.id}`}
+          class="nav-link"
+          data-nav={s.id}
+          data-tip={s.label}
+          aria-label={s.label}
+          aria-current={i === 0 ? 'location' : undefined}
+        >
+          <Icon name={s.icon} />
+        </a>
+      ))
+    }
+  </nav>
+
+  <div class="flex flex-row min-[681px]:gap-1 min-[681px]:mt-auto min-[681px]:ml-0 min-[681px]:flex-col">
+    <a class="nav-link hidden! min-[681px]:flex!" href={site.github} target="_blank" rel="noopener" data-tip="GitHub" aria-label="GitHub">
+      <Icon name="github" size={18} />
+    </a>
+    <button type="button" class="nav-link" id="theme-toggle" data-tip="Mode sombre" aria-label="Mode sombre" aria-pressed="false">
+      <Icon name="moon" size={18} class="dark:hidden" />
+      <Icon name="sun" size={18} class="hidden dark:block" />
+    </button>
+  </div>
+</aside>
+
+<script>
+  // Bouton mode sombre : bascule la classe .dark et mémorise le choix
+  const toggle = document.getElementById('theme-toggle') as HTMLButtonElement;
+  const sync = () => {
+    const dark = document.documentElement.classList.contains('dark');
+    toggle.setAttribute('aria-pressed', String(dark));
+    toggle.dataset.tip = dark ? 'Mode clair' : 'Mode sombre';
+  };
+  sync();
+  toggle.addEventListener('click', () => {
+    const dark = document.documentElement.classList.toggle('dark');
+    try {
+      localStorage.setItem('theme', dark ? 'dark' : 'light');
+    } catch {}
+    sync();
+  });
+
+  // Mobile : cache la barre quand on descend, la réaffiche quand on remonte
+  const bar = document.getElementById('site-nav')!;
+  const mobile = matchMedia('(max-width: 680px)');
+  let lastY = scrollY;
+  let ticking = false;
+  // Après un clic dans le menu, la barre reste visible pendant le défilement automatique
+  let lockUntil = 0;
+  bar.addEventListener('click', (e) => {
+    if ((e.target as Element).closest('a[href^="#"]')) lockUntil = Date.now() + 1500;
+  });
+  addEventListener(
+    'scroll',
+    () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const y = scrollY;
+        const goingDown = y > lastY + 4;
+        const goingUp = y < lastY - 4;
+        if (!mobile.matches || y < 80 || goingUp || Date.now() < lockUntil) delete bar.dataset.hidden;
+        else if (goingDown) bar.dataset.hidden = '';
+        if (goingDown || goingUp) lastY = y;
+        ticking = false;
+      });
+    },
+    { passive: true },
+  );
+  // Montre la barre quand on navigue au clavier dedans
+  bar.addEventListener('focusin', () => delete bar.dataset.hidden);
+
+  // Section active dans le menu, selon la section visible au milieu de l'écran
+  const links = document.querySelectorAll<HTMLAnchorElement>('[data-nav]');
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          links.forEach((l) => {
+            if (l.dataset.nav === e.target.id) l.setAttribute('aria-current', 'location');
+            else l.removeAttribute('aria-current');
+          });
+        }
+      },
+      { rootMargin: '-45% 0px -50% 0px' },
+    );
+    links.forEach((l) => {
+      const section = document.getElementById(l.dataset.nav!);
+      if (section) io.observe(section);
+    });
+  }
+</script>

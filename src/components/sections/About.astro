@@ -1,0 +1,51 @@
+---
+import Photo from '../Photo.astro';
+import { about } from '../../data/site';
+
+// Composition en collage : la 1re photo en grand, la 2de en médaillon qui la chevauche en bas à gauche
+const [main, inset] = about.photos;
+---
+
+<section id="a-propos" class="section flex min-h-dvh items-center" aria-labelledby="t-about">
+  <div
+    class="container-page grid items-center gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:gap-16 [&>*]:animate-rise [&>*:nth-child(2)]:[animation-delay:.15s]"
+  >
+    <div class="flex flex-col gap-8">
+      <h1 id="t-about" class="bar m-0 text-[clamp(44px,5.5vw,84px)] leading-none font-bold tracking-[-0.03em]">
+        {about.greeting}
+      </h1>
+      <div class="flex max-w-[36em] flex-col gap-4 text-lg">
+        {about.paragraphs.map((p) => <p class="m-0">{p}</p>)}
+        <p class="m-0 text-muted">{about.outro}</p>
+      </div>
+    </div>
+
+    <!-- Collage de photos -->
+    <div class="relative pb-[26%] lg:pb-[18%]">
+      {
+        main && (
+          <Photo
+            src={main.src}
+            alt={main.alt}
+            ratio="4 / 5"
+            class="ml-auto w-[88%] lg:w-[80%]"
+            sizes="(min-width: 1024px) 420px, 88vw"
+            eager
+          />
+        )
+      }
+      {
+        inset && (
+          <Photo
+            src={inset.src}
+            alt={inset.alt}
+            ratio="3 / 4"
+            class="absolute bottom-0 left-0 w-[52%] shadow-[0_0_0_8px_var(--bg)] lg:w-[44%]"
+            sizes="(min-width: 1024px) 240px, 52vw"
+            eager
+          />
+        )
+      }
+    </div>
+  </div>
+</section>

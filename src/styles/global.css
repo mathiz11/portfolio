@@ -1,0 +1,195 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/space-grotesk';
+
+/* Mode sombre piloté par la classe .dark sur <html> */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------- Couleurs (tokens du design) ---------- */
+:root {
+  --bg: #fafaf7;
+  --fg: #111111;
+  --muted: #555551;
+  --line: #dadad4;
+  --card: #ffffff;
+  --hatch: #e6e6e0;
+  --accent: #ffd60a;
+  color-scheme: light;
+}
+
+.dark {
+  --bg: #121212;
+  --fg: #ededea;
+  --muted: #a6a6a1;
+  --line: #2f2f2b;
+  --card: #191919;
+  --hatch: #262624;
+  color-scheme: dark;
+}
+
+/* Exposés à Tailwind : bg-bg, text-fg, text-muted, border-line, bg-card, bg-accent… */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-card: var(--card);
+  --color-hatch: var(--hatch);
+  --color-accent: var(--accent);
+}
+
+@theme {
+  --font-sans: 'Space Grotesk Variable', ui-sans-serif, system-ui, sans-serif;
+  --ease-out-soft: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  --animate-rise: rise 0.8s var(--ease-out-soft) both;
+
+  @keyframes rise {
+    from { opacity: 0; translate: 0 18px; }
+    to { opacity: 1; translate: 0 0; }
+  }
+  @keyframes grow {
+    from { width: 0; }
+    to { width: 44px; }
+  }
+}
+
+/* ---------- Base ---------- */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-snap-type: y proximity;
+    /* Laisse la place de la barre mobile quand on arrive sur une section */
+    scroll-padding-top: 56px;
+    @media (min-width: 681px) {
+      scroll-padding-top: 0;
+    }
+  }
+  body {
+    @apply bg-bg font-sans text-base leading-relaxed text-fg antialiased;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  a {
+    @apply text-fg transition-colors hover:text-muted;
+  }
+  ::selection {
+    @apply bg-accent text-[#111111];
+  }
+}
+
+/* ---------- Composants réutilisés ---------- */
+@layer components {
+  /* Section pleine largeur qui s'aligne au scroll */
+  .section {
+    @apply box-border snap-start border-t border-line px-[clamp(20px,5vw,72px)] py-14 first:border-t-0 sm:py-22;
+  }
+
+  /* Conteneur centré, commun à toutes les sections */
+  .container-page {
+    @apply mx-auto w-full max-w-280;
+  }
+
+  /* Mobile : rangée de photos qui défile à l'horizontale (pleine largeur d'écran).
+     À partir de 640 px : grille classique. */
+  .photo-scroller {
+    @apply -mx-[clamp(20px,5vw,72px)] flex snap-x snap-mandatory gap-3 overflow-x-auto px-[clamp(20px,5vw,72px)] sm:mx-0 sm:grid sm:overflow-visible sm:px-0;
+    scroll-padding-inline: clamp(20px, 5vw, 72px);
+    scrollbar-width: none;
+  }
+  .photo-scroller::-webkit-scrollbar {
+    display: none;
+  }
+  .photo-scroller > * {
+    @apply w-[80%] shrink-0 snap-start sm:w-auto;
+  }
+
+  /* Titre de section + trait jaune */
+  .section-title {
+    @apply m-0 text-[clamp(32px,3.6vw,44px)] leading-[1.05] font-bold tracking-[-0.03em];
+  }
+  .section-title::after,
+  .bar::after {
+    content: '';
+    @apply mt-4 block h-1 w-11 bg-accent;
+  }
+  .bar::after {
+    animation: grow 0.7s 0.45s var(--ease-out-soft) both;
+  }
+
+  .eyebrow {
+    @apply m-0 text-[13px] font-bold tracking-[0.08em] text-muted uppercase;
+  }
+
+  .tag {
+    @apply border border-line px-2.25 py-0.75 text-xs font-medium whitespace-nowrap text-fg;
+  }
+
+  /* Cadre photo (bordure + hachures tant que l'image charge) */
+  .frame {
+    @apply overflow-hidden border border-fg bg-card;
+    background-image: repeating-linear-gradient(-45deg, var(--hatch) 0 1px, transparent 1px 8px);
+  }
+  .frame img {
+    @apply block h-full w-full object-cover;
+  }
+
+  /* Carte qui se soulève avec une ombre jaune */
+  .card {
+    @apply flex flex-col gap-2 text-fg no-underline transition-transform duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:text-fg;
+  }
+  .card .frame {
+    @apply transition-shadow duration-150;
+  }
+  .card:hover .frame,
+  .box:hover {
+    box-shadow: 4px 4px 0 var(--accent);
+  }
+  .box {
+    @apply flex flex-col gap-3 border border-fg bg-card p-5.5 transition duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5;
+  }
+
+  /* Menu latéral */
+  .nav-link {
+    @apply relative flex size-10 min-[681px]:size-12 cursor-pointer items-center justify-center border-0 bg-transparent text-muted transition-colors duration-150 hover:text-fg;
+  }
+  .nav-link[aria-current='location'] {
+    @apply text-fg;
+  }
+  .nav-link[aria-current='location']::before {
+    content: '';
+    @apply absolute inset-x-3 bottom-1 h-0.75 bg-accent min-[681px]:inset-x-auto min-[681px]:top-3 min-[681px]:bottom-3 min-[681px]:-left-3.5 min-[681px]:h-auto min-[681px]:w-0.75;
+  }
+  /* Infobulle (desktop uniquement) */
+  .nav-link::after {
+    content: attr(data-tip);
+    @apply pointer-events-none absolute top-1/2 left-[calc(100%+10px)] z-10 hidden bg-fg px-2.5 py-1 text-[13px] font-medium whitespace-nowrap text-bg opacity-0 min-[681px]:block;
+    transform: translate(-4px, -50%);
+    transition: opacity 0.15s, transform 0.15s;
+  }
+  .nav-link:hover::after,
+  .nav-link:focus-visible::after {
+    opacity: 1;
+    transform: translate(0, -50%);
+  }
+}
+
+/* ---------- Animations au scroll (navigateurs compatibles) ---------- */
+@supports (animation-timeline: view()) {
+  .reveal {
+    animation: rise linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 40%;
+  }
+  .section-title::after {
+    animation: grow linear both;
+    animation-timeline: view();
+    animation-range: entry 10% entry 60%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
